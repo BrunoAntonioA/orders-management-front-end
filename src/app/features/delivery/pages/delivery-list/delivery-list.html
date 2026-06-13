@@ -1,0 +1,60 @@
+<app-page-header title="Delivery" description="Manage delivery routes and assign orders.">
+  <a routerLink="/delivery/new" class="btn btn--primary">New delivery</a>
+</app-page-header>
+
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else if (error()) {
+  <div class="card delivery-list__error">
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn--secondary" (click)="loadDeliveries()">Retry</button>
+  </div>
+} @else if (deliveries().length === 0) {
+  <div class="card empty-state">
+    <p>No deliveries yet.</p>
+    <a routerLink="/delivery/new" class="btn btn--primary">Create delivery</a>
+  </div>
+} @else {
+  <div class="card delivery-list__table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Driver</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (delivery of deliveries(); track delivery.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/delivery', delivery.id]" class="delivery-list__link">
+                {{ delivery.name ?? 'Delivery ' + (delivery.routeDate | date: 'mediumDate') }}
+              </a>
+            </td>
+            <td>{{ delivery.routeDate | date: 'mediumDate' }}</td>
+            <td>{{ delivery.driver ?? '—' }}</td>
+            <td>
+              <app-delivery-status-badge [status]="delivery.status" />
+            </td>
+            <td>
+              <div class="data-table__actions">
+                <a [routerLink]="['/delivery', delivery.id]" class="btn btn--ghost btn--sm">Open</a>
+                <button
+                  type="button"
+                  class="btn btn--danger btn--sm"
+                  [disabled]="deletingId() === delivery.id"
+                  (click)="deleteDelivery(delivery)"
+                >
+                  {{ deletingId() === delivery.id ? '…' : 'Delete' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

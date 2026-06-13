@@ -44,8 +44,9 @@ export class OrderDetail {
         this.order.set(order);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Order not found.');
+      error: (err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Order not found.';
+        this.error.set(message);
         this.loading.set(false);
       },
     });

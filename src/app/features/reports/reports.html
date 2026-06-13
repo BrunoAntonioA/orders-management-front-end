@@ -1,8 +1,211 @@
 <app-page-header
   title="Reports"
-  description="Review performance metrics and export operational reports."
-/>
+  description="Overview of orders, deliveries, clients, locations, and revenue from your live data."
+>
+  <button type="button" class="btn btn--secondary" (click)="loadReport()" [disabled]="loading()">
+    Refresh
+  </button>
+</app-page-header>
 
-<app-module-placeholder
-  message="Reports module ready. Add charts, KPIs, and export tools here."
-/>
+@if (loading()) {
+  <p class="loading-state">Loading reports…</p>
+} @else if (error()) {
+  <div class="card reports__error">
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn--secondary" (click)="loadReport()">Retry</button>
+  </div>
+} @else if (report(); as data) {
+  <section class="reports__stats">
+    <article class="reports-stat card">
+      <p class="reports-stat__label">Total revenue</p>
+      <p class="reports-stat__value">{{ data.summary.totalRevenue | currency: 'USD' : 'symbol' : '1.0-0' }}</p>
+      <p class="reports-stat__hint">
+        Avg {{ data.summary.averageOrderValue | currency: 'USD' : 'symbol' : '1.0-0' }} per order
+      </p>
+    </article>
+    <article class="reports-stat card">
+      <p class="reports-stat__label">Orders</p>
+      <p class="reports-stat__value">{{ data.summary.totalOrders }}</p>
+      <p class="reports-stat__hint">
+        {{ data.summary.assignedOrders }} on routes · {{ data.summary.unassignedOrders }} unassigned
+      </p>
+    </article>
+    <article class="reports-stat card">
+      <p class="reports-stat__label">Clients</p>
+      <p class="reports-stat__value">{{ data.summary.totalClients }}</p>
+      <p class="reports-stat__hint">{{ data.topClients.length }} with order history</p>
+    </article>
+    <article class="reports-stat card">
+      <p class="reports-stat__label">Deliveries</p>
+      <p class="reports-stat__value">{{ data.summary.totalDeliveries }}</p>
+      <p class="reports-stat__hint">
+        <a routerLink="/delivery" class="reports__link">View routes</a>
+      </p>
+    </article>
+  </section>
+
+  <div class="reports__grid">
+    <section class="card reports-panel">
+      <header class="reports-panel__header">
+        <h2>Orders by status</h2>
+        <a routerLink="/orders" class="reports__link">All orders</a>
+      </header>
+      @if (data.ordersByStatus.length === 0) {
+        <p class="reports-panel__empty">No orders yet.</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+              <th>Share</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.ordersByStatus; track row.status) {
+              <tr>
+                <td><app-order-status-badge [status]="row.status" /></td>
+                <td>{{ row.count }}</td>
+                <td>{{ statusShare(row.count, data.summary.totalOrders) | percent: '1.0-0' }}</td>
+                <td>{{ row.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="card reports-panel">
+      <header class="reports-panel__header">
+        <h2>Top products</h2>
+        <span class="reports-panel__subtitle">By line-item revenue</span>
+      </header>
+      @if (data.topProducts.length === 0) {
+        <p class="reports-panel__empty">No order items yet.</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.topProducts; track row.product) {
+              <tr>
+                <td>{{ row.product }}</td>
+                <td>{{ row.quantity }}</td>
+                <td>{{ row.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="card reports-panel">
+      <header class="reports-panel__header">
+        <h2>Top clients</h2>
+        <a routerLink="/clients" class="reports__link">All clients</a>
+      </header>
+      @if (data.topClients.length === 0) {
+        <p class="reports-panel__empty">No client orders yet.</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Address</th>
+              <th>Orders</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.topClients; track row.clientId) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/clients', row.clientId]" class="reports__link">
+                    {{ row.name }}
+                  </a>
+                </td>
+                <td class="reports-panel__address">{{ row.address }}</td>
+                <td>{{ row.orderCount }}</td>
+                <td>{{ row.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="card reports-panel">
+      <header class="reports-panel__header">
+        <h2>Locations</h2>
+        <span class="reports-panel__subtitle">Grouped by delivery address</span>
+      </header>
+      @if (data.topLocations.length === 0) {
+        <p class="reports-panel__empty">No delivery addresses yet.</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Clients</th>
+              <th>Orders</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.topLocations; track row.address) {
+              <tr>
+                <td class="reports-panel__address">{{ row.address }}</td>
+                <td>{{ row.clientCount }}</td>
+                <td>{{ row.orderCount }}</td>
+                <td>{{ row.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <section class="card reports-panel reports-panel--wide">
+      <header class="reports-panel__header">
+        <h2>Deliveries</h2>
+        <a routerLink="/delivery" class="reports__link">Manage routes</a>
+      </header>
+      @if (data.deliveries.length === 0) {
+        <p class="reports-panel__empty">No delivery routes yet.</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Driver</th>
+              <th>Orders</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.deliveries; track row.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/delivery', row.id]" class="reports__link">{{ row.label }}</a>
+                </td>
+                <td>{{ row.routeDate | date: 'mediumDate' }}</td>
+                <td>{{ deliveryStatusLabel(row.status) }}</td>
+                <td>{{ row.driver ?? '—' }}</td>
+                <td>{{ row.orderCount }}</td>
+                <td>{{ row.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  </div>
+}

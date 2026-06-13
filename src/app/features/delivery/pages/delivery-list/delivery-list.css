@@ -1,0 +1,35 @@
+.delivery-list__table-wrap {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.delivery-list__link {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.delivery-list__link:hover {
+  text-decoration: underline;
+}
+
+.delivery-list__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.delivery-list__error p {
+  margin: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-state p {
+  margin: 0;
+}

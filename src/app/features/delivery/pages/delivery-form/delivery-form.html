@@ -1,0 +1,77 @@
+<app-page-header title="New delivery" description="Create a route, then add orders to it." />
+
+@if (error()) {
+  <div class="card delivery-form__error">
+    <p>{{ error() }}</p>
+  </div>
+}
+
+<form class="delivery-form" [formGroup]="form" (ngSubmit)="submit()">
+  <section class="card delivery-form__section">
+    <div class="delivery-form__grid">
+      <div class="form-field">
+        <label for="routeDate">Date</label>
+        <input id="routeDate" type="date" formControlName="routeDate" />
+        @if (isInvalid('routeDate')) {
+          <span class="form-field__error">Required.</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input id="name" type="text" formControlName="name" placeholder="North AM route" />
+      </div>
+
+      <div class="form-field">
+        <label for="driver">Driver</label>
+        <input id="driver" type="text" formControlName="driver" />
+      </div>
+
+      <div class="form-field delivery-form__full">
+        <label for="notes">Notes</label>
+        <textarea id="notes" formControlName="notes"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div class="delivery-form__actions">
+    <button type="submit" class="btn btn--primary" [disabled]="saving()">
+      {{ saving() ? 'Creating…' : 'Create' }}
+    </button>
+    <a routerLink="/delivery" class="btn btn--secondary">Cancel</a>
+  </div>
+</form>
+
+<style>
+  .delivery-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .delivery-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .delivery-form__full {
+    grid-column: 1 / -1;
+  }
+
+  .delivery-form__actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .delivery-form__error p {
+    margin: 0;
+    color: #b91c1c;
+  }
+
+  @media (max-width: 640px) {
+    .delivery-form__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

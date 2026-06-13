@@ -35,8 +35,9 @@ export class ClientList {
         this.clients.set(clients);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Could not load clients.');
+      error: (err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Could not load clients.';
+        this.error.set(message);
         this.loading.set(false);
       },
     });

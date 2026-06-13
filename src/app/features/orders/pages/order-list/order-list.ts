@@ -35,8 +35,9 @@ export class OrderList {
         this.orders.set(orders);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Could not load orders. Please try again.');
+      error: (err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Could not load orders.';
+        this.error.set(message);
         this.loading.set(false);
       },
     });
@@ -56,8 +57,10 @@ export class OrderList {
         );
         this.markingDeliveredId.set(null);
       },
-      error: () => {
-        this.error.set('Could not mark order as delivered.');
+      error: (err: unknown) => {
+        const message =
+          err instanceof Error ? err.message : 'Could not mark order as delivered.';
+        this.error.set(message);
         this.markingDeliveredId.set(null);
       },
     });

@@ -90,9 +90,10 @@ export class ClientForm {
         this.saving.set(false);
         void this.router.navigate(['/clients', client.id]);
       },
-      error: () => {
+      error: (err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Could not save client.';
+        this.error.set(message);
         this.saving.set(false);
-        this.error.set('Could not save client.');
       },
     });
   }

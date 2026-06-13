@@ -1,10 +1,20 @@
 import { Routes } from '@angular/router';
 import { DashboardLayout } from './core/layout/dashboard-layout/dashboard-layout';
+import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/pages/login/login').then((m) => m.Login),
+  },
+  {
     path: '',
     component: DashboardLayout,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',
@@ -28,8 +38,8 @@ export const routes: Routes = [
       },
       {
         path: 'delivery',
-        loadComponent: () =>
-          import('./features/delivery/delivery').then((m) => m.Delivery),
+        loadChildren: () =>
+          import('./features/delivery/delivery.routes').then((m) => m.DELIVERY_ROUTES),
       },
       {
         path: 'reports',

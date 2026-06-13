@@ -23,4 +23,11 @@
       </a>
     }
   </nav>
+
+  <footer class="sidebar__footer">
+    @if (userEmail(); as email) {
+      <p class="sidebar__user" [title]="email">{{ email }}</p>
+    }
+    <button type="button" class="sidebar__logout" (click)="signOut()">Sign out</button>
+  </footer>
 </aside>

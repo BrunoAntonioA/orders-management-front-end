@@ -37,8 +37,9 @@ export class ClientDetail {
         this.client.set(client);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Client not found.');
+      error: (err: unknown) => {
+        const message = err instanceof Error ? err.message : 'Client not found.';
+        this.error.set(message);
         this.loading.set(false);
       },
     });

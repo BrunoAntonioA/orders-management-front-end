@@ -1,0 +1,128 @@
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else if (error() && !delivery()) {
+  <div class="card delivery-detail__error">
+    <p>{{ error() }}</p>
+    <a routerLink="/delivery" class="btn btn--secondary">Back</a>
+  </div>
+} @else if (delivery()) {
+  <app-page-header
+    [title]="delivery()!.name ?? ('Delivery ' + (delivery()!.routeDate | date: 'mediumDate'))"
+    [description]="(delivery()!.routeDate | date: 'fullDate') + (delivery()!.driver ? ' · ' + delivery()!.driver : '')"
+  >
+    <a routerLink="/delivery" class="btn btn--secondary">Back</a>
+  </app-page-header>
+
+  @if (error()) {
+    <div class="card delivery-detail__banner">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <section class="card delivery-detail__meta">
+    <dl class="delivery-detail__grid">
+      <div>
+        <dt>Status</dt>
+        <dd><app-delivery-status-badge [status]="delivery()!.status" /></dd>
+      </div>
+      <div>
+        <dt>Orders</dt>
+        <dd>{{ delivery()!.orders.length }}</dd>
+      </div>
+      @if (delivery()!.notes) {
+        <div class="delivery-detail__full">
+          <dt>Notes</dt>
+          <dd>{{ delivery()!.notes }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section class="card delivery-detail__section">
+    <h2 class="delivery-detail__title">Orders on this delivery</h2>
+
+    @if (delivery()!.orders.length === 0) {
+      <p class="delivery-detail__empty">No orders assigned yet. Add from the list below.</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of delivery()!.orders; track order.id) {
+            <tr>
+              <td>{{ order.stopSequence ?? '—' }}</td>
+              <td>
+                <a [routerLink]="['/orders', order.id]" class="delivery-detail__link">
+                  #{{ shortId(order.id) }}
+                </a>
+              </td>
+              <td>{{ order.customer.firstName }} {{ order.customer.lastName }}</td>
+              <td class="delivery-detail__address">{{ order.customer.address }}</td>
+              <td><app-order-status-badge [status]="order.status" /></td>
+              <td>{{ order.total | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn--danger btn--sm"
+                  [disabled]="actingOrderId() === order.id"
+                  (click)="removeOrder(order.id)"
+                >
+                  {{ actingOrderId() === order.id ? '…' : 'Remove' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+
+  <section class="card delivery-detail__section">
+    <h2 class="delivery-detail__title">Add orders</h2>
+
+    @if (availableOrders().length === 0) {
+      <p class="delivery-detail__empty">No available orders (created or pending, unassigned).</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of availableOrders(); track order.id) {
+            <tr>
+              <td>#{{ shortId(order.id) }}</td>
+              <td>{{ order.customer.firstName }} {{ order.customer.lastName }}</td>
+              <td class="delivery-detail__address">{{ order.customer.address }}</td>
+              <td><app-order-status-badge [status]="order.status" /></td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn--success btn--sm"
+                  [disabled]="actingOrderId() === order.id"
+                  (click)="addOrder(order.id)"
+                >
+                  {{ actingOrderId() === order.id ? '…' : 'Add' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+}
