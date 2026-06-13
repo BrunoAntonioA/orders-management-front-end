@@ -1,0 +1,57 @@
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else if (error() || !client()) {
+  <div class="card client-detail__error">
+    <p>{{ error() ?? 'Client not found.' }}</p>
+    <a routerLink="/clients" class="btn btn--secondary">Back</a>
+  </div>
+} @else {
+  <app-page-header [title]="fullName(client()!)" description="Client profile">
+    <a [routerLink]="['/clients', client()!.id, 'edit']" class="btn btn--primary">Edit</a>
+    <button
+      type="button"
+      class="btn btn--danger"
+      [disabled]="deleting()"
+      (click)="deleteClient()"
+    >
+      {{ deleting() ? 'Deleting…' : 'Delete' }}
+    </button>
+    <a routerLink="/clients" class="btn btn--secondary">Back</a>
+  </app-page-header>
+
+  <section class="card client-detail__info">
+    <dl class="client-detail__grid">
+      <div>
+        <dt>Phone</dt>
+        <dd>{{ client()!.phone ?? '—' }}</dd>
+      </div>
+      <div>
+        <dt>Email</dt>
+        <dd>{{ client()!.email ?? '—' }}</dd>
+      </div>
+      <div class="client-detail__full">
+        <dt>Address</dt>
+        <dd>
+          {{ client()!.address }}
+          @if (client()!.addressHint) {
+            <span class="client-detail__hint">({{ client()!.addressHint }})</span>
+          }
+        </dd>
+      </div>
+      @if (client()!.notes) {
+        <div class="client-detail__full">
+          <dt>Notes</dt>
+          <dd>{{ client()!.notes }}</dd>
+        </div>
+      }
+      <div>
+        <dt>Created</dt>
+        <dd>{{ client()!.createdAt | date: 'medium' }}</dd>
+      </div>
+      <div>
+        <dt>Updated</dt>
+        <dd>{{ client()!.updatedAt | date: 'medium' }}</dd>
+      </div>
+    </dl>
+  </section>
+}

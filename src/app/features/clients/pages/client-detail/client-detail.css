@@ -1,0 +1,44 @@
+.client-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.client-detail__grid dt {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.client-detail__grid dd {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.client-detail__full {
+  grid-column: 1 / -1;
+}
+
+.client-detail__hint {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.client-detail__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.client-detail__error p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .client-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}

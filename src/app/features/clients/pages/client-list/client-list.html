@@ -1,0 +1,66 @@
+<app-page-header title="Clients" description="Manage your customer directory.">
+  <a routerLink="/clients/new" class="btn btn--primary">Add</a>
+</app-page-header>
+
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else if (error()) {
+  <div class="card client-list__error">
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn--secondary" (click)="loadClients()">Retry</button>
+  </div>
+} @else if (clients().length === 0) {
+  <div class="card empty-state">
+    <p>No clients yet.</p>
+    <a routerLink="/clients/new" class="btn btn--primary">Add client</a>
+  </div>
+} @else {
+  <div class="card client-list__table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Updated</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (client of clients(); track client.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/clients', client.id]" class="client-list__name">
+                {{ fullName(client) }}
+              </a>
+            </td>
+            <td>{{ client.phone ?? '—' }}</td>
+            <td>{{ client.email ?? '—' }}</td>
+            <td class="client-list__address">
+              {{ client.address }}
+              @if (client.addressHint) {
+                <span class="client-list__hint">({{ client.addressHint }})</span>
+              }
+            </td>
+            <td>{{ client.updatedAt | date: 'mediumDate' }}</td>
+            <td>
+              <div class="data-table__actions">
+                <a [routerLink]="['/clients', client.id]" class="btn btn--ghost btn--sm">View</a>
+                <a [routerLink]="['/clients', client.id, 'edit']" class="btn btn--ghost btn--sm">Edit</a>
+                <button
+                  type="button"
+                  class="btn btn--danger btn--sm"
+                  [disabled]="deletingId() === client.id"
+                  (click)="deleteClient(client, $event)"
+                >
+                  {{ deletingId() === client.id ? '…' : 'Delete' }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

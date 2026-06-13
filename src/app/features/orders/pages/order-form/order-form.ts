@@ -11,7 +11,7 @@ import { CurrencyPipe } from '@angular/common';
 import { PageHeader } from '../../../../shared/components/page-header/page-header';
 import { CustomersService } from '../../services/customers.service';
 import { OrdersService } from '../../services/orders.service';
-import { Customer } from '../../models/customer.model';
+import { Customer } from '../../../../shared/models/customer.model';
 import { ORDER_STATUS_LABELS, CreateOrderPayload, OrderStatus } from '../../models/order.model';
 
 interface OrderItemFormValue {

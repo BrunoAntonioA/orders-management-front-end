@@ -1,0 +1,76 @@
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else {
+  <app-page-header
+    [title]="isEditMode() ? 'Edit client' : 'New client'"
+    [description]="isEditMode() ? 'Update client info.' : 'Add a new client.'"
+  />
+
+  @if (error()) {
+    <div class="card client-form__error">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <form class="client-form" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="card client-form__section">
+      <div class="client-form__grid">
+        <div class="form-field">
+          <label for="firstName">First name</label>
+          <input id="firstName" type="text" formControlName="firstName" />
+          @if (isInvalid('firstName')) {
+            <span class="form-field__error">Required.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="lastName">Last name</label>
+          <input id="lastName" type="text" formControlName="lastName" />
+          @if (isInvalid('lastName')) {
+            <span class="form-field__error">Required.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="tel" formControlName="phone" />
+        </div>
+
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" />
+        </div>
+
+        <div class="form-field client-form__full">
+          <label for="address">Address</label>
+          <input id="address" type="text" formControlName="address" />
+          @if (isInvalid('address')) {
+            <span class="form-field__error">Required.</span>
+          }
+        </div>
+
+        <div class="form-field client-form__full">
+          <label for="addressHint">Address hint</label>
+          <input
+            id="addressHint"
+            type="text"
+            formControlName="addressHint"
+            placeholder="Doorbell, floor, etc."
+          />
+        </div>
+
+        <div class="form-field client-form__full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" formControlName="notes"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <div class="client-form__actions">
+      <button type="submit" class="btn btn--primary" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : isEditMode() ? 'Save' : 'Add' }}
+      </button>
+      <a routerLink="/clients" class="btn btn--secondary">Cancel</a>
+    </div>
+  </form>
+}

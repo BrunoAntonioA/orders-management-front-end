@@ -1,4 +1,5 @@
-import { Customer } from '../models/customer.model';
+import { customersMockStore } from '../../../shared/data/customers.mock';
+import { Customer } from '../../../shared/models/customer.model';
 import {
   CreateOrderPayload,
   CustomerSummary,
@@ -9,60 +10,11 @@ import {
 
 const OWNER_ID = '00000000-0000-4000-8000-000000000001';
 
-const customers: Customer[] = [
-  {
-    id: 'c1111111-1111-4111-8111-111111111111',
-    ownerId: OWNER_ID,
-    firstName: 'María',
-    lastName: 'García',
-    phone: '+54 11 4567-8901',
-    email: 'maria.garcia@email.com',
-    address: 'Av. Corrientes 1234, CABA',
-    addressHint: '3B, timbre azul',
-    createdAt: '2026-01-10T10:00:00Z',
-    updatedAt: '2026-01-10T10:00:00Z',
-  },
-  {
-    id: 'c2222222-2222-4222-8222-222222222222',
-    ownerId: OWNER_ID,
-    firstName: 'Carlos',
-    lastName: 'López',
-    phone: '+54 11 2345-6789',
-    email: 'carlos.lopez@email.com',
-    address: 'Calle Falsa 742, San Isidro',
-    addressHint: 'Portón negro',
-    createdAt: '2026-01-12T14:30:00Z',
-    updatedAt: '2026-01-12T14:30:00Z',
-  },
-  {
-    id: 'c3333333-3333-4333-8333-333333333333',
-    ownerId: OWNER_ID,
-    firstName: 'Ana',
-    lastName: 'Martínez',
-    phone: '+54 11 9876-5432',
-    address: 'Av. Santa Fe 3500, Palermo',
-    createdAt: '2026-01-15T09:00:00Z',
-    updatedAt: '2026-01-15T09:00:00Z',
-  },
-  {
-    id: 'c4444444-4444-4444-8444-444444444444',
-    ownerId: OWNER_ID,
-    firstName: 'Roberto',
-    lastName: 'Fernández',
-    phone: '+54 11 5555-1234',
-    email: 'roberto.f@email.com',
-    address: 'Maipú 450, Microcentro',
-    addressHint: 'Oficina 12, piso 5',
-    createdAt: '2026-02-01T11:00:00Z',
-    updatedAt: '2026-02-01T11:00:00Z',
-  },
-];
-
 let orders: OrderWithCustomer[] = [
   {
     id: 'o1111111-1111-4111-8111-111111111111',
     ownerId: OWNER_ID,
-    customerId: customers[0].id,
+    customerId: 'c1111111-1111-4111-8111-111111111111',
     orderDate: '2026-06-10',
     status: 'delivered',
     total: 4500,
@@ -70,7 +22,7 @@ let orders: OrderWithCustomer[] = [
     deliveredAt: '2026-06-10T14:30:00Z',
     createdAt: '2026-06-10T08:00:00Z',
     updatedAt: '2026-06-10T14:30:00Z',
-    customer: toSummary(customers[0]),
+    customer: toSummary(customersMockStore.getById('c1111111-1111-4111-8111-111111111111')!),
     items: [
       {
         id: 'i1111111-1111-4111-8111-111111111111',
@@ -91,13 +43,13 @@ let orders: OrderWithCustomer[] = [
   {
     id: 'o2222222-2222-4222-8222-222222222222',
     ownerId: OWNER_ID,
-    customerId: customers[1].id,
+    customerId: 'c2222222-2222-4222-8222-222222222222',
     orderDate: '2026-06-11',
     status: 'pending',
     total: 3200,
     createdAt: '2026-06-11T09:15:00Z',
     updatedAt: '2026-06-11T09:15:00Z',
-    customer: toSummary(customers[1]),
+    customer: toSummary(customersMockStore.getById('c2222222-2222-4222-8222-222222222222')!),
     items: [
       {
         id: 'i2222222-2222-4222-8222-222222222222',
@@ -111,13 +63,13 @@ let orders: OrderWithCustomer[] = [
   {
     id: 'o3333333-3333-4333-8333-333333333333',
     ownerId: OWNER_ID,
-    customerId: customers[2].id,
+    customerId: 'c3333333-3333-4333-8333-333333333333',
     orderDate: '2026-06-12',
     status: 'created',
     total: 5400,
     createdAt: '2026-06-12T07:45:00Z',
     updatedAt: '2026-06-12T07:45:00Z',
-    customer: toSummary(customers[2]),
+    customer: toSummary(customersMockStore.getById('c3333333-3333-4333-8333-333333333333')!),
     items: [
       {
         id: 'i3333333-3333-4333-8333-333333333333',
@@ -149,6 +101,21 @@ function toSummary(customer: Customer): CustomerSummary {
   };
 }
 
+function resolveCustomer(customerId: string): CustomerSummary {
+  const customer = customersMockStore.getById(customerId);
+  if (!customer) {
+    throw new Error('Customer not found');
+  }
+  return toSummary(customer);
+}
+
+function withFreshCustomer(order: OrderWithCustomer): OrderWithCustomer {
+  return {
+    ...structuredClone(order),
+    customer: resolveCustomer(order.customerId),
+  };
+}
+
 function generateId(prefix: string): string {
   const segment = crypto.randomUUID().slice(0, 8);
   return `${prefix}${segment}-${crypto.randomUUID().slice(9)}`;
@@ -169,26 +136,29 @@ function buildItems(orderId: string, items: CreateOrderPayload['items']): OrderI
 }
 
 export const ordersMockStore = {
+  hasOrdersForCustomer(customerId: string): boolean {
+    return orders.some((order) => order.customerId === customerId);
+  },
+
   getCustomers(): Customer[] {
-    return customers.map((customer) => ({ ...customer }));
+    return customersMockStore.getAll();
   },
 
   getCustomerById(id: string): Customer | undefined {
-    const customer = customers.find((entry) => entry.id === id);
-    return customer ? { ...customer } : undefined;
+    return customersMockStore.getById(id);
   },
 
   getAll(): OrderWithCustomer[] {
-    return orders.map((order) => structuredClone(order));
+    return orders.map(withFreshCustomer);
   },
 
   getById(id: string): OrderWithCustomer | undefined {
     const order = orders.find((entry) => entry.id === id);
-    return order ? structuredClone(order) : undefined;
+    return order ? withFreshCustomer(order) : undefined;
   },
 
   create(payload: CreateOrderPayload): OrderWithCustomer {
-    const customer = customers.find((entry) => entry.id === payload.customerId);
+    const customer = customersMockStore.getById(payload.customerId);
     if (!customer) {
       throw new Error('Customer not found');
     }
@@ -222,14 +192,12 @@ export const ordersMockStore = {
 
     const current = orders[index];
     const customerId = payload.customerId ?? current.customerId;
-    const customer = customers.find((entry) => entry.id === customerId);
+    const customer = customersMockStore.getById(customerId);
     if (!customer) {
       throw new Error('Customer not found');
     }
 
-    const items = payload.items
-      ? buildItems(id, payload.items)
-      : current.items;
+    const items = payload.items ? buildItems(id, payload.items) : current.items;
     const now = new Date().toISOString();
 
     const updated: OrderWithCustomer = {

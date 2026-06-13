@@ -23,8 +23,8 @@ export const routes: Routes = [
       },
       {
         path: 'clients',
-        loadComponent: () =>
-          import('./features/clients/clients').then((m) => m.Clients),
+        loadChildren: () =>
+          import('./features/clients/clients.routes').then((m) => m.CLIENTS_ROUTES),
       },
       {
         path: 'delivery',
