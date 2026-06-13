@@ -1,0 +1,26 @@
+<aside class="sidebar" aria-label="Main navigation">
+  <div class="sidebar__brand">
+    <span class="sidebar__logo" aria-hidden="true">OMS</span>
+    <div>
+      <p class="sidebar__title">Order Manager</p>
+      <p class="sidebar__subtitle">Operations hub</p>
+    </div>
+  </div>
+
+  <nav class="sidebar__nav">
+    @for (item of navItems; track item.path) {
+      <a
+        class="sidebar__link"
+        [routerLink]="item.path"
+        routerLinkActive="sidebar__link--active"
+        [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+      >
+        <span class="sidebar__icon" [attr.data-icon]="item.icon" aria-hidden="true"></span>
+        <span class="sidebar__link-text">
+          <span class="sidebar__link-label">{{ item.label }}</span>
+          <span class="sidebar__link-description">{{ item.description }}</span>
+        </span>
+      </a>
+    }
+  </nav>
+</aside>

@@ -1,0 +1,8 @@
+<a class="module-card" [routerLink]="module().path">
+  <span class="module-card__icon" [attr.data-icon]="module().icon" aria-hidden="true"></span>
+  <span class="module-card__content">
+    <span class="module-card__title">{{ module().label }}</span>
+    <span class="module-card__description">{{ module().description }}</span>
+  </span>
+  <span class="module-card__arrow" aria-hidden="true">→</span>
+</a>

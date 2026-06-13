@@ -1,0 +1,12 @@
+<app-page-header
+  title="Dashboard"
+  description="Welcome to your orders management hub. Pick a module from the sidebar or jump in below."
+/>
+
+<section class="dashboard">
+  <div class="dashboard__grid">
+    @for (module of modules; track module.path) {
+      <app-module-card [module]="module" />
+    }
+  </div>
+</section>

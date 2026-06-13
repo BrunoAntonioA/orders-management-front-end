@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.module-placeholder {
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  border: 1px dashed var(--border-subtle);
+}
+
+.module-placeholder__message {
+  margin: 0;
+  color: var(--text-secondary);
+}
