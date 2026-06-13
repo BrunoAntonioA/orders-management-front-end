@@ -18,8 +18,8 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () =>
-          import('./features/orders/orders').then((m) => m.Orders),
+        loadChildren: () =>
+          import('./features/orders/orders.routes').then((m) => m.ORDERS_ROUTES),
       },
       {
         path: 'clients',

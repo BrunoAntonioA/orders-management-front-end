@@ -1,0 +1,77 @@
+<app-page-header
+  title="Orders"
+  description="Create, browse, and manage customer orders."
+>
+  <a routerLink="/orders/new" class="btn btn--primary">New order</a>
+</app-page-header>
+
+@if (loading()) {
+  <p class="loading-state">Loading orders…</p>
+} @else if (error()) {
+  <div class="card order-list__error">
+    <p>{{ error() }}</p>
+    <button type="button" class="btn btn--secondary" (click)="loadOrders()">Retry</button>
+  </div>
+} @else if (orders().length === 0) {
+  <div class="card empty-state">
+    <p>No orders yet.</p>
+    <a routerLink="/orders/new" class="btn btn--primary">Create your first order</a>
+  </div>
+} @else {
+  <div class="card order-list__table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of orders(); track order.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/orders', order.id]" class="order-list__id">
+                #{{ shortId(order.id) }}
+              </a>
+            </td>
+            <td>{{ order.orderDate | date: 'mediumDate' }}</td>
+            <td>{{ order.customer.firstName }} {{ order.customer.lastName }}</td>
+            <td>{{ order.customer.phone ?? '—' }}</td>
+            <td class="order-list__address">
+              {{ order.customer.address }}
+              @if (order.customer.addressHint) {
+                <span class="order-list__hint">({{ order.customer.addressHint }})</span>
+              }
+            </td>
+            <td>
+              <app-order-status-badge [status]="order.status" />
+            </td>
+            <td>{{ order.total | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+            <td>
+              <div class="data-table__actions">
+                @if (canMarkDelivered(order.status)) {
+                  <button
+                    type="button"
+                    class="btn btn--success btn--sm"
+                    [disabled]="markingDeliveredId() === order.id"
+                    (click)="markAsDelivered(order.id)"
+                  >
+                    {{ markingDeliveredId() === order.id ? '…' : 'Deliver' }}
+                  </button>
+                }
+                <a [routerLink]="['/orders', order.id]" class="btn btn--ghost btn--sm">View</a>
+                <a [routerLink]="['/orders', order.id, 'edit']" class="btn btn--ghost btn--sm">Edit</a>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -1,0 +1,30 @@
+<section class="customer-card">
+  <h3 class="customer-card__title">Customer</h3>
+  <dl class="customer-card__grid">
+    <div>
+      <dt>Name</dt>
+      <dd>{{ customer().firstName }} {{ customer().lastName }}</dd>
+    </div>
+    @if (customer().phone) {
+      <div>
+        <dt>Phone</dt>
+        <dd>{{ customer().phone }}</dd>
+      </div>
+    }
+    @if (customer().email) {
+      <div>
+        <dt>Email</dt>
+        <dd>{{ customer().email }}</dd>
+      </div>
+    }
+    <div class="customer-card__full">
+      <dt>Address</dt>
+      <dd>
+        {{ customer().address }}
+        @if (customer().addressHint) {
+          <span class="customer-card__hint">({{ customer().addressHint }})</span>
+        }
+      </dd>
+    </div>
+  </dl>
+</section>

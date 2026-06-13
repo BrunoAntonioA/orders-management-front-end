@@ -1,0 +1,96 @@
+@if (loading()) {
+  <p class="loading-state">Loading order…</p>
+} @else if (error() || !order()) {
+  <div class="card order-detail__error">
+    <p>{{ error() ?? 'Order not found.' }}</p>
+    <a routerLink="/orders" class="btn btn--secondary">Back to orders</a>
+  </div>
+} @else {
+  <app-page-header
+    [title]="'Order #' + shortId(order()!.id)"
+    [description]="'Placed on ' + (order()!.orderDate | date: 'fullDate')"
+  >
+    @if (canMarkDelivered(order()!.status)) {
+      <button
+        type="button"
+        class="btn btn--success"
+        [disabled]="markingDelivered()"
+        (click)="markAsDelivered()"
+      >
+        {{ markingDelivered() ? 'Updating…' : 'Mark as delivered' }}
+      </button>
+    }
+    <a [routerLink]="['/orders', order()!.id, 'edit']" class="btn btn--primary">Edit order</a>
+    <a routerLink="/orders" class="btn btn--secondary">Back</a>
+  </app-page-header>
+
+  <div class="order-detail__layout">
+    <section class="card order-detail__info">
+      <h2 class="order-detail__section-title">Order details</h2>
+      <dl class="order-detail__meta">
+        <div>
+          <dt>Status</dt>
+          <dd><app-order-status-badge [status]="order()!.status" /></dd>
+        </div>
+        <div>
+          <dt>Order date</dt>
+          <dd>{{ order()!.orderDate | date: 'mediumDate' }}</dd>
+        </div>
+        <div>
+          <dt>Total</dt>
+          <dd class="order-detail__total">
+            {{ order()!.total | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </dd>
+        </div>
+        @if (order()!.deliveredAt) {
+          <div>
+            <dt>Delivered at</dt>
+            <dd>{{ order()!.deliveredAt | date: 'medium' }}</dd>
+          </div>
+        }
+        @if (order()!.notes) {
+          <div class="order-detail__full">
+            <dt>Notes</dt>
+            <dd>{{ order()!.notes }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <app-customer-summary-card [customer]="order()!.customer" />
+  </div>
+
+  <section class="card order-detail__items">
+    <h2 class="order-detail__section-title">Items</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit price</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of order()!.items; track item.id) {
+          <tr>
+            <td>{{ item.product }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+            <td>
+              {{ lineTotal(item.quantity, item.unitPrice) | currency: 'USD' : 'symbol' : '1.0-0' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3"><strong>Total</strong></td>
+          <td>
+            <strong>{{ order()!.total | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </section>
+}

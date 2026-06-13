@@ -1,0 +1,134 @@
+@if (loading()) {
+  <p class="loading-state">Loading…</p>
+} @else {
+  <app-page-header
+    [title]="isEditMode() ? 'Edit order' : 'New order'"
+    [description]="
+      isEditMode()
+        ? 'Update order details, customer, and line items.'
+        : 'Create a new order with customer and product details.'
+    "
+  />
+
+  @if (error()) {
+    <div class="card order-form__error">
+      <p>{{ error() }}</p>
+    </div>
+  }
+
+  <form class="order-form" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="card order-form__section">
+      <h2 class="order-form__section-title">Order info</h2>
+      <div class="order-form__grid">
+        <div class="form-field">
+          <label for="customerId">Customer</label>
+          <select id="customerId" formControlName="customerId">
+            <option value="" disabled>Select a customer</option>
+            @for (customer of customers(); track customer.id) {
+              <option [value]="customer.id">
+                {{ customer.firstName }} {{ customer.lastName }} — {{ customer.address }}
+              </option>
+            }
+          </select>
+          @if (isInvalid('customerId')) {
+            <span class="form-field__error">Customer is required.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="orderDate">Order date</label>
+          <input id="orderDate" type="date" formControlName="orderDate" />
+          @if (isInvalid('orderDate')) {
+            <span class="form-field__error">Order date is required.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="status">Status</label>
+          <select id="status" formControlName="status">
+            @for (option of statusOptions; track option[0]) {
+              <option [value]="option[0]">{{ option[1] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field order-form__full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" formControlName="notes" placeholder="Delivery instructions, etc."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card order-form__section">
+      <div class="order-form__items-header">
+        <h2 class="order-form__section-title">Items</h2>
+        <button type="button" class="btn btn--secondary btn--sm" (click)="addItem()">
+          Add item
+        </button>
+      </div>
+
+      <div class="order-form__items" formArrayName="items">
+        @for (item of items.controls; track $index; let i = $index) {
+          <div class="order-form__item-row" [formGroupName]="i">
+            <div class="form-field order-form__product">
+              <label [for]="'product-' + i">Product</label>
+              <input
+                [id]="'product-' + i"
+                type="text"
+                formControlName="product"
+                placeholder="e.g. Agua mineral 20L"
+              />
+              @if (isInvalid('product', i)) {
+                <span class="form-field__error">Required.</span>
+              }
+            </div>
+
+            <div class="form-field order-form__qty">
+              <label [for]="'quantity-' + i">Qty</label>
+              <input [id]="'quantity-' + i" type="number" min="1" formControlName="quantity" />
+              @if (isInvalid('quantity', i)) {
+                <span class="form-field__error">Min 1.</span>
+              }
+            </div>
+
+            <div class="form-field order-form__price">
+              <label [for]="'unitPrice-' + i">Unit price</label>
+              <input
+                [id]="'unitPrice-' + i"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="unitPrice"
+              />
+              @if (isInvalid('unitPrice', i)) {
+                <span class="form-field__error">Required.</span>
+              }
+            </div>
+
+            <button
+              type="button"
+              class="btn btn--ghost btn--sm order-form__remove"
+              (click)="removeItem(i)"
+              [disabled]="items.length === 1"
+              aria-label="Remove item"
+            >
+              Remove
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="order-form__total">
+        <span>Estimated total</span>
+        <strong>{{ computedTotal | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+      </div>
+    </section>
+
+    <div class="order-form__actions">
+      <button type="submit" class="btn btn--primary" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : isEditMode() ? 'Save changes' : 'Create order' }}
+      </button>
+      <a routerLink="/orders" class="btn btn--secondary">Cancel</a>
+    </div>
+  </form>
+}
